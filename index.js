@@ -15,7 +15,7 @@ async function tmp (t, name = null) {
 
   await fs.promises.mkdir(tmpdir, { recursive: true })
 
-  if (t) t.teardown(gc)
+  if (t) t.teardown(gc, { order: 1 })
   return tmpdir
 
   async function gc () {
