@@ -1,6 +1,7 @@
 const os = require('os')
 const path = require('path')
 const fs = require('fs')
+const rimraf = require('rimraf')
 
 module.exports = tmp
 
@@ -19,7 +20,7 @@ async function tmp (t, name = null) {
   return tmpdir
 
   async function gc () {
-    await fs.promises.rm(tmpdir, { recursive: true })
+    await rimraf.manual(tmpdir)
   }
 
   function valid (name) {
