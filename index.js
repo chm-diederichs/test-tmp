@@ -39,9 +39,14 @@ function normalRmrf (path) {
 }
 
 async function windowsRmrf (dir) {
+  const prom = []
+
   const stat = await fs.promises.stat(dir)
   if (stat.isFile()) return fs.promises.rm(dir)
+
   for (const subdir of await fs.promises.readdir(dir)) {
-    await windowsRmrf(path.join(dir, subdir))
+    prom.push(windowsRmrf(path.join(dir, subdir)))
   }
+
+  await Promise.all(prom)
 }
