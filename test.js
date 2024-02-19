@@ -36,3 +36,18 @@ test('reuse directory', async function (t) {
   const dir = await tmp(t, name)
   t.is(dir, existing, 'uses the existing directory when it already exists')
 })
+
+test('basic', async function (t) {
+  const dir = await tmp(t)
+
+  const subdir = path.join(dir, 'foo', 'bar')
+
+  await fs.promises.mkdir(subdir, { recursive: true })
+
+  await fs.promises.writeFile(path.join(subdir, 'a.txt'), 'hello')
+  await fs.promises.writeFile(path.join(subdir, 'b.txt'), 'world')
+
+  t.alike(await fs.promises.readdir(dir), ['foo'])
+  t.alike(await fs.promises.readdir(path.join(dir, 'foo')), ['bar'])
+  t.alike(await fs.promises.readdir(path.join(dir, 'foo', 'bar')), ['a.txt', 'b.txt'])
+})

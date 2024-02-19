@@ -1,7 +1,8 @@
 const os = require('os')
 const path = require('path')
 const fs = require('fs')
-const rimraf = require('rimraf')
+
+const rmrf = os.platform() === 'win32' ? windowsRmrf : normalRmrf
 
 module.exports = tmp
 
@@ -20,7 +21,7 @@ async function tmp (t, name = null) {
   return tmpdir
 
   async function gc () {
-    await rimraf.manual(tmpdir)
+    await rmrf(tmpdir)
   }
 
   function valid (name) {
@@ -30,5 +31,17 @@ async function tmp (t, name = null) {
     const max = 64
 
     return !chars.test(name) && name.length <= max
+  }
+}
+
+function normalRmrf (path) {
+  return fs.promises.rm(path, { recursive: true })
+}
+
+async function windowsRmrf (dir) {
+  const stat = await fs.promises.stat(dir)
+  if (stat.isFile()) return fs.promises.rm(dir)
+  for (const subdir of await fs.promises.readdir(dir)) {
+    await windowsRmrf(path.join(dir, subdir))
   }
 }
